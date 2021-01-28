@@ -1,0 +1,10 @@
+<ngx-board-layout>
+  <div
+    ngxBoardCard
+    *ngFor="let card of cards; index as i"
+    [style.height]="card.height"
+    [style.background-color]="card.color"
+  >
+    {{ i }}
+  </div>
+</ngx-board-layout>
