@@ -1,12 +1,11 @@
 import { NgModule } from '@angular/core';
-import { NgxBoardLayoutComponent } from './ngx-board-layout.component';
-
-
+import { BrowserModule } from '@angular/platform-browser';
+import { BoardCardDirective } from './board-card.directive';
+import { BoardLayoutComponent } from './board-layout.component';
 
 @NgModule({
-  declarations: [NgxBoardLayoutComponent],
-  imports: [
-  ],
-  exports: [NgxBoardLayoutComponent]
+  declarations: [BoardCardDirective, BoardLayoutComponent],
+  imports: [BrowserModule],
+  exports: [BoardCardDirective, BoardLayoutComponent]
 })
-export class NgxBoardLayoutModule { }
+export class NgxBoardLayoutModule {}
