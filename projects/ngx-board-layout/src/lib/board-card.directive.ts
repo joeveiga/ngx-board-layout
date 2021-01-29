@@ -1,21 +1,15 @@
-import { Directive, ElementRef } from '@angular/core';
-
-export interface CardSize {
-  height: number;
-  width: number;
-}
+import { Directive, ElementRef, HostBinding } from '@angular/core';
 
 @Directive({
   selector: '[ngxBoardCard]'
 })
 export class BoardCardDirective {
+  @HostBinding('style.order')
+  order: number;
+
   get height(): number {
     return (this.element.nativeElement as HTMLElement).offsetHeight;
   }
 
-  get width(): number {
-    return (this.element.nativeElement as HTMLElement).offsetWidth;
-  }
-
-  constructor(public readonly element: ElementRef) {}
+  constructor(private readonly element: ElementRef) {}
 }

@@ -6,14 +6,28 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+  replay = [];
   cards = [];
 
   constructor() {
-    for (let i = 0; i < 20; i++) {
-      this.cards.push({
-        color: `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`,
-        height: `${Math.random() * 200 + 100}px`
-      });
+    // for (let i = 0; i < 100; i++) {}
+  }
+
+  addCard(): void {
+    if (this.replay.length) {
+      this.cards.push(this.replay.pop());
+      return;
+    }
+
+    this.cards.push({
+      color: `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255})`,
+      content: [...new Array(Math.floor(Math.random() * 200 + 50)).keys()].map(() => this.cards.length).join(', ')
+    });
+  }
+
+  removeLastCard(): void {
+    if (this.cards.length) {
+      this.replay.push(this.cards.pop());
     }
   }
 }

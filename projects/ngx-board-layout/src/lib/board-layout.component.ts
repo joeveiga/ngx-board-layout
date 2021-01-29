@@ -4,10 +4,8 @@ import {
   ContentChildren,
   QueryList,
   OnDestroy,
-  Renderer2,
-  ViewChildren,
-  ElementRef,
-  AfterViewInit
+  HostBinding,
+  AfterContentInit
 } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -19,7 +17,15 @@ import { BoardCardDirective } from './board-card.directive';
   styleUrls: ['./board-layout.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BoardLayoutComponent implements AfterViewInit, OnDestroy {
+export class BoardLayoutComponent implements AfterContentInit, OnDestroy {
+  @HostBinding('style.--board-layout-track-count')
+  get columns(): number {
+    return this.columnDefs?.length;
+  }
+
+  @HostBinding('style.height')
+  height: string;
+
   @ContentChildren(BoardCardDirective) set cards(value: QueryList<BoardCardDirective>) {
     this._cards = value;
   }
@@ -27,18 +33,16 @@ export class BoardLayoutComponent implements AfterViewInit, OnDestroy {
     return this._cards;
   }
 
-  @ViewChildren('column') columns: QueryList<ElementRef>;
-
   columnDefs = [0, 0, 0, 0];
 
   private _cards: QueryList<BoardCardDirective>;
   private readonly _unsub: Subject<void>;
 
-  constructor(private readonly _elementRef: ElementRef, private readonly _renderer: Renderer2) {
+  constructor() {
     this._unsub = new Subject();
   }
 
-  ngAfterViewInit(): void {
+  ngAfterContentInit(): void {
     this.reorder();
     this._cards.changes.pipe(takeUntil(this._unsub)).subscribe(() => {
       this.reorder();
@@ -51,34 +55,21 @@ export class BoardLayoutComponent implements AfterViewInit, OnDestroy {
   }
 
   private reorder(): void {
-    const columns = this.columns.toArray();
-    const highest = [...this.columnDefs];
+    setTimeout(() => {
+      const trackHeight = [...this.columnDefs];
+      let maxTrackHeight = 0;
+      const cards = this.cards.toArray(); //.sort((a, b) => a.index - b.index);
+      for (let i = 0; i < cards.length; i++) {
+        const card = cards[i];
+        let columnIdx = i % this.columns;
+        card.order = 2 * columnIdx;
 
-    for (let i = 0; i < columns.length; i++) {
-      // const column = columns[i];
-    }
+        trackHeight[columnIdx] += card.height;
+        maxTrackHeight = Math.max(maxTrackHeight, trackHeight[columnIdx]);
+      }
 
-    const cards = this.cards.toArray();
-    for (let i = 0; i < cards.length; i++) {
-      const card = cards[i];
-
-      // find highest column for next card
-      // let curHighest = Infinity;
-      // let columnIdx = 0;
-      // for (let ci = 0; ci < highest.length; ci++) {
-      //   const value = highest[ci];
-      //   if (value < curHighest) {
-      //     columnIdx = ci;
-      //     curHighest = value;
-      //   }
-      // }
-      let columnIdx = i % columns.length;
-
-      this._renderer.removeChild(this._elementRef.nativeElement, card.element.nativeElement);
-      this._renderer.appendChild(columns[columnIdx].nativeElement, card.element.nativeElement);
-
-      // update column heights
-      highest[columnIdx] += card.height;
-    }
+      // set container height so that flex break works as expected
+      this.height = `${maxTrackHeight + 4}px`;
+    }, 0);
   }
 }

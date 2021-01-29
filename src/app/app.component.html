@@ -1,10 +1,8 @@
-<ngx-board-layout>
-  <div
-    ngxBoardCard
-    *ngFor="let card of cards; index as i"
-    [style.height]="card.height"
-    [style.background-color]="card.color"
-  >
-    {{ i }}
+<button (click)="addCard()">Add card</button>
+<button (click)="removeLastCard()">Remove last card</button>
+<ngx-board-layout [style.background-color]="'lightgray'">
+  <div ngxBoardCard *ngFor="let card of cards; index as i" [style.background-color]="card.color">
+    <div>Card with content</div>
+    {{ card.content }}
   </div>
 </ngx-board-layout>

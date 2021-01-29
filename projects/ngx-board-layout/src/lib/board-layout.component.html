@@ -1,2 +1,4 @@
 <ng-content></ng-content>
-<div class="column" #column *ngFor="let col of columnDefs"></div>
+<ng-container *ngFor="let colDef of columnDefs; index as ci">
+  <span class="ngx-board-layout-flex-break" *ngIf="ci < columns - 1" [style.order]="2 * ci + 1"></span>
+</ng-container>

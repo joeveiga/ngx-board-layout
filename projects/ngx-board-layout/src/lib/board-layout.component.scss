@@ -1,8 +1,20 @@
 :host {
   display: flex;
-  flex-direction: row;
+  flex-flow: column wrap;
+  align-items: flex-start;
+  align-content: flex-start;
 
-  .column {
-    flex: 1;
+  --board-layout-track-count: 4;
+
+  ::ng-deep {
+    > :not(.ngx-board-layout-flex-break) {
+      width: calc(100% / var(--board-layout-track-count));
+    }
+  }
+
+  .ngx-board-layout-flex-break {
+    flex-basis: 100%;
+    width: 0;
+    content: '';
   }
 }
