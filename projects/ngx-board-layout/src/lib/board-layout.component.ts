@@ -5,7 +5,8 @@ import {
   QueryList,
   OnDestroy,
   HostBinding,
-  AfterContentInit
+  AfterContentInit,
+  Input
 } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -19,8 +20,14 @@ import { BoardCardDirective } from './board-card.directive';
 })
 export class BoardLayoutComponent implements AfterContentInit, OnDestroy {
   @HostBinding('style.--board-layout-track-count')
-  get columns(): number {
-    return this.columnDefs?.length;
+  @Input()
+  set tracks(val: number) {
+    this._tracks = val;
+    this.columnDefs = [...new Array(val).keys()];
+    this.reorder();
+  }
+  get tracks(): number {
+    return this._tracks;
   }
 
   @HostBinding('style.height')
@@ -33,11 +40,10 @@ export class BoardLayoutComponent implements AfterContentInit, OnDestroy {
     return this._cards;
   }
 
-  columnDefs = [0, 0, 0, 0];
-
+  private _tracks: number;
   private _cards: QueryList<BoardCardDirective>;
   private readonly _unsub: Subject<void>;
-
+  columnDefs: any[] = [];
   constructor() {
     this._unsub = new Subject();
   }
@@ -61,7 +67,7 @@ export class BoardLayoutComponent implements AfterContentInit, OnDestroy {
       const cards = this.cards.toArray(); //.sort((a, b) => a.index - b.index);
       for (let i = 0; i < cards.length; i++) {
         const card = cards[i];
-        let columnIdx = i % this.columns;
+        let columnIdx = i % this.tracks;
         card.order = 2 * columnIdx;
 
         trackHeight[columnIdx] += card.height;

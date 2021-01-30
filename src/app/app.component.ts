@@ -8,9 +8,14 @@ import { Component } from '@angular/core';
 export class AppComponent {
   replay = [];
   cards = [];
+  tracks = 3;
 
   constructor() {
     // for (let i = 0; i < 100; i++) {}
+  }
+
+  addTrack(): void {
+    this.tracks++;
   }
 
   addCard(): void {
