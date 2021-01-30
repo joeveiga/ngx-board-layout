@@ -7,7 +7,7 @@
   --board-layout-track-count: 4;
 
   ::ng-deep {
-    > :not(.ngx-board-layout-flex-break) {
+    > [ngxboardcard] {
       width: calc(100% / var(--board-layout-track-count));
     }
   }
