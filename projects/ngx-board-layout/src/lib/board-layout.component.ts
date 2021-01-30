@@ -24,13 +24,13 @@ export class BoardLayoutComponent implements AfterContentInit, OnDestroy {
   set tracks(val: number) {
     this._tracks = val;
     this.columnDefs = [...new Array(val).keys()];
-    this.reorder();
+    setTimeout(() => this.reorder(), 0);
   }
   get tracks(): number {
     return this._tracks;
   }
 
-  @HostBinding('style.height')
+  @HostBinding('style.--board-layout-container-height')
   height: string;
 
   @ContentChildren(BoardCardDirective) set cards(value: QueryList<BoardCardDirective>) {
@@ -61,21 +61,19 @@ export class BoardLayoutComponent implements AfterContentInit, OnDestroy {
   }
 
   private reorder(): void {
-    setTimeout(() => {
-      const trackHeight = [...this.columnDefs];
-      let maxTrackHeight = 0;
-      const cards = this.cards.toArray(); //.sort((a, b) => a.index - b.index);
-      for (let i = 0; i < cards.length; i++) {
-        const card = cards[i];
-        let columnIdx = i % this.tracks;
-        card.order = 2 * columnIdx;
+    const trackHeight = [...this.columnDefs];
+    let maxTrackHeight = 0;
+    const cards = this.cards.toArray();
+    for (let i = 0; i < cards.length; i++) {
+      const card = cards[i];
+      let columnIdx = i % this.tracks;
+      card.order = 2 * columnIdx;
 
-        trackHeight[columnIdx] += card.height;
-        maxTrackHeight = Math.max(maxTrackHeight, trackHeight[columnIdx]);
-      }
+      trackHeight[columnIdx] += card.height;
+      maxTrackHeight = Math.max(maxTrackHeight, trackHeight[columnIdx]);
+    }
 
-      // set container height so that flex break works as expected
-      this.height = `${maxTrackHeight + 4}px`;
-    }, 0);
+    // set container height so that flex break works as expected
+    this.height = `${maxTrackHeight}px`;
   }
 }

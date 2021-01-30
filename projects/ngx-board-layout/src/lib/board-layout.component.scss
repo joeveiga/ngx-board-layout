@@ -1,20 +1,28 @@
 :host {
-  display: flex;
-  flex-flow: column wrap;
-  align-items: flex-start;
-  align-content: flex-start;
-
   --board-layout-track-count: 4;
+  --board-layout-container-height: 0;
 
-  ::ng-deep {
-    > [ngxboardcard] {
-      width: calc(100% / var(--board-layout-track-count));
+  display: block;
+  position: relative;
+
+  .ngx-board-layout-container {
+    width: 100%;
+    height: var(--board-layout-container-height);
+    display: flex;
+    flex-flow: column wrap;
+    align-items: flex-start;
+    align-content: flex-start;
+
+    ::ng-deep {
+      > [ngxboardcard] {
+        width: calc(100% / var(--board-layout-track-count));
+      }
     }
-  }
 
-  .ngx-board-layout-flex-break {
-    flex-basis: 100%;
-    width: 0;
-    content: '';
+    .ngx-board-layout-flex-break {
+      flex-basis: 100%;
+      width: 0;
+      content: '';
+    }
   }
 }

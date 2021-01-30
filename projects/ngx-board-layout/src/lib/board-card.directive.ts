@@ -1,15 +1,16 @@
-import { Directive, ElementRef, HostBinding } from '@angular/core';
+import { Directive, ElementRef, Renderer2 } from '@angular/core';
 
 @Directive({
   selector: '[ngxBoardCard]'
 })
 export class BoardCardDirective {
-  @HostBinding('style.order')
-  order: number;
-
   get height(): number {
-    return (this.element.nativeElement as HTMLElement).offsetHeight;
+    return (this._element.nativeElement as HTMLElement).offsetHeight;
   }
 
-  constructor(private readonly element: ElementRef) {}
+  set order(val: number) {
+    this._renderer.setStyle(this._element.nativeElement, 'order', val);
+  }
+
+  constructor(private readonly _element: ElementRef, private readonly _renderer: Renderer2) {}
 }
