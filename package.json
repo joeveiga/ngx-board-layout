@@ -59,6 +59,7 @@
     "ng-packagr": "^11.0.0",
     "prettier": "^2.2.1",
     "protractor": "~7.0.0",
+    "resize-observer-polyfill": "^1.5.1",
     "ts-node": "~8.3.0",
     "tslint": "~6.1.0",
     "tslint-config-prettier": "^1.18.0",

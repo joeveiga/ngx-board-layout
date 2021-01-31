@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "paths": {
+      "ngx-board-layout": ["dist/ngx-board-layout"],
+      "ngx-board-layout/*": ["dist/ngx-board-layout/lib/*"],
+      "tslib": ["../node_modules/tslib"]
+    }
+  }
+}
