@@ -94,8 +94,16 @@ export class BoardLayoutComponent implements OnInit, AfterContentInit, OnDestroy
     const tracks = this._cardSorting.sort(this.cards.toArray(), this.tracks);
 
     // set cards order property per their track index.
-    // cards order value will be 2n, while track break elements is 2n+1
-    tracks.forEach((cards, idx) => cards.forEach(card => (card.order = 2 * idx)));
+    let order = 0;
+    for (let idx = 0; idx < tracks.length; idx++) {
+      const cards = tracks[idx];
+      for (const card of cards) {
+        card.order = ++order;
+      }
+      this.columnDefs[idx] = ++order;
+    }
+    console.log(this.columnDefs);
+    this.columnDefs = [...this.columnDefs];
 
     // update container size to match that of the largest track
     const newSize = tracks

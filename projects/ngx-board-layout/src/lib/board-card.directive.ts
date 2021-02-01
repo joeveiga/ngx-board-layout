@@ -12,5 +12,5 @@ export class BoardCardDirective {
     this._renderer.setStyle(this._element.nativeElement, 'order', val);
   }
 
-  constructor(private readonly _element: ElementRef, private readonly _renderer: Renderer2) {}
+  constructor(public readonly _element: ElementRef<HTMLElement>, private readonly _renderer: Renderer2) {}
 }

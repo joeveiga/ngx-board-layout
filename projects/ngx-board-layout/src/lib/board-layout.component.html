@@ -1,6 +1,6 @@
 <div class="ngx-board-layout-container">
   <ng-content></ng-content>
   <ng-container *ngFor="let colDef of columnDefs; index as ci">
-    <span class="ngx-board-layout-flex-break" *ngIf="ci < tracks - 1" [style.order]="2 * ci + 1"></span>
+    <span class="ngx-board-layout-flex-break" *ngIf="ci < tracks - 1" [style.order]="colDef"></span>
   </ng-container>
 </div>
