@@ -28,8 +28,7 @@ export class BoardLayoutComponent implements OnInit, AfterContentInit, OnDestroy
   @Input()
   set tracks(val: number) {
     this._tracks = val;
-    this.columnDefs = [...new Array(val).keys()];
-    // setTimeout(() => this.reorder(), 0);
+    this.trackBreaks$.next([...new Array(val).keys()]);
     this._renderer.setStyle(
       this._element.nativeElement,
       '--board-layout-track-count',
@@ -53,12 +52,13 @@ export class BoardLayoutComponent implements OnInit, AfterContentInit, OnDestroy
   private _cards: QueryList<BoardCardDirective>;
   private _resizeObserver: ResizeObserver;
   private readonly _unsub$: Subject<void>;
-  columnDefs: any[] = [];
+  readonly trackBreaks$: Subject<Array<number>>;
   constructor(
     private readonly _element: ElementRef<HTMLElement>,
     private readonly _renderer: Renderer2,
     private readonly _cardSorting: CardSortingStrategy
   ) {
+    this.trackBreaks$ = new Subject();
     this._unsub$ = new Subject();
   }
 
@@ -93,17 +93,19 @@ export class BoardLayoutComponent implements OnInit, AfterContentInit, OnDestroy
     // sort content cards into their tracks
     const tracks = this._cardSorting.sort(this.cards.toArray(), this.tracks);
 
-    // set cards order property per their track index.
+    // set cards order property per their track index and adjust track breaks order as well
     let order = 0;
+    const trackBreaks = new Array(this.tracks);
     for (let idx = 0; idx < tracks.length; idx++) {
       const cards = tracks[idx];
       for (const card of cards) {
         card.order = ++order;
       }
-      this.columnDefs[idx] = ++order;
+
+      trackBreaks[idx] = ++order;
     }
-    console.log(this.columnDefs);
-    this.columnDefs = [...this.columnDefs];
+
+    this.trackBreaks$.next(trackBreaks);
 
     // update container size to match that of the largest track
     const newSize = tracks

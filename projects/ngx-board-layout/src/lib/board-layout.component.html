@@ -1,6 +1,6 @@
 <div class="ngx-board-layout-container">
   <ng-content></ng-content>
-  <ng-container *ngFor="let colDef of columnDefs; index as ci">
-    <span class="ngx-board-layout-flex-break" *ngIf="ci < tracks - 1" [style.order]="colDef"></span>
+  <ng-container *ngFor="let breakOrder of trackBreaks$ | async; index as ci">
+    <span class="ngx-board-layout-flex-break" *ngIf="ci < tracks - 1" [style.order]="breakOrder"></span>
   </ng-container>
 </div>
