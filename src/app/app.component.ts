@@ -29,6 +29,10 @@ export class AppComponent {
     this.tracks++;
   }
 
+  removeTrack(): void {
+    if (this.tracks > 0) this.tracks--;
+  }
+
   addCard(): void {
     if (this.replay.length) {
       this.cards.push(this.replay.pop());
