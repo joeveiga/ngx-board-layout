@@ -13,10 +13,10 @@ import {
 } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import ResizeObserver from 'resize-observer-polyfill';
 
 import { BoardCardDirective } from './board-card.directive';
 import { CardSortingStrategy } from './card-sorting-strategy.service';
+import { ResizeObserverService } from './resize-observer.service';
 
 @Component({
   selector: 'ngx-board-layout',
@@ -54,21 +54,28 @@ export class BoardLayoutComponent implements OnInit, AfterContentInit, OnDestroy
 
   private _tracks: number;
   private _cards: QueryList<BoardCardDirective>;
-  private _resizeObserver: ResizeObserver;
   private readonly _unsub$: Subject<void>;
   private readonly _trackBreaks$: Subject<Array<number>>;
+
   constructor(
     private readonly _element: ElementRef<HTMLElement>,
     private readonly _renderer: Renderer2,
-    private readonly _cardSorting: CardSortingStrategy
+    private readonly _cardSorting: CardSortingStrategy,
+    private readonly _resize: ResizeObserverService
   ) {
     this._trackBreaks$ = new Subject();
     this._unsub$ = new Subject();
   }
 
   ngOnInit(): void {
-    this._resizeObserver = new ResizeObserver(() => this.onResized());
-    this._resizeObserver.observe(this._element.nativeElement);
+    this._resize
+      .observe(this._element.nativeElement)
+      .pipe(takeUntil(this._unsub$))
+      .subscribe(() => {
+        // TODO: remove double reorder when the max height is changed
+        // product of a rearrangement of the cards.
+        this.reorder();
+      });
   }
 
   ngAfterContentInit(): void {
@@ -81,16 +88,6 @@ export class BoardLayoutComponent implements OnInit, AfterContentInit, OnDestroy
   ngOnDestroy(): void {
     this._unsub$.next();
     this._unsub$.complete();
-
-    if (this._resizeObserver) {
-      this._resizeObserver.unobserve(this._element.nativeElement);
-    }
-  }
-
-  private onResized(): void {
-    // TODO: remove double reorder when the max height is changed
-    // product of a rearrangement of the cards.
-    this.reorder();
   }
 
   private reorder(): void {
