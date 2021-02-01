@@ -5,9 +5,7 @@ import { BoardCardDirective } from './board-card.directive';
   providedIn: 'root'
 })
 export class CardSortingStrategy {
-  constructor() {}
-
-  sort(cards: Array<BoardCardDirective>, tracks: number): Array<Array<BoardCardDirective>> {
+  sort(cards: BoardCardDirective[], tracks: number): BoardCardDirective[][] {
     const result = [...new Array(tracks).keys()].map(() => []);
     cards.forEach((card, idx) => result[idx % tracks].push(card));
     return result;

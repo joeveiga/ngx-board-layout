@@ -48,14 +48,14 @@ export class BoardLayoutComponent implements OnInit, AfterContentInit, OnDestroy
     return this._cards;
   }
 
-  get trackBreaks$(): Observable<Array<number>> {
+  get trackBreaks$(): Observable<number[]> {
     return this._trackBreaks$;
   }
 
   private _tracks: number;
   private _cards: QueryList<BoardCardDirective>;
   private readonly _unsub$: Subject<void>;
-  private readonly _trackBreaks$: Subject<Array<number>>;
+  private readonly _trackBreaks$: Subject<number[]>;
 
   constructor(
     private readonly _element: ElementRef<HTMLElement>,

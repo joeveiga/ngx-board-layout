@@ -1,20 +1,19 @@
-import { Component, Injectable } from '@angular/core';
-import { BoardCardDirective, CardSortingStrategy } from 'projects/ngx-board-layout/src/public-api';
+import { Component } from '@angular/core';
 
-@Injectable()
-export class LargestFirstSortingStrategy extends CardSortingStrategy {
-  sort(cards: Array<BoardCardDirective>, tracks: number): Array<Array<BoardCardDirective>> {
-    const result = [...new Array(tracks).keys()].map(() => []);
-    cards.sort((a, b) => b.height - a.height).forEach((card, idx) => result[idx % tracks].push(card));
-    return result;
-  }
-}
+// @Injectable()
+// export class LargestFirstSortingStrategy extends CardSortingStrategy {
+//   sort(cards: Array<BoardCardDirective>, tracks: number): Array<Array<BoardCardDirective>> {
+//     const result = [...new Array(tracks).keys()].map(() => []);
+//     cards.sort((a, b) => b.height - a.height).forEach((card, idx) => result[idx % tracks].push(card));
+//     return result;
+//   }
+// }
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
-  providers: [{ provide: CardSortingStrategy, useClass: LargestFirstSortingStrategy }]
+  styleUrls: ['./app.component.scss']
+  // providers: [{ provide: CardSortingStrategy, useClass: LargestFirstSortingStrategy }]
 })
 export class AppComponent {
   replay = [];
