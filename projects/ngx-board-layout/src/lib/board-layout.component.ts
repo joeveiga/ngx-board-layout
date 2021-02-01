@@ -11,7 +11,7 @@ import {
   Renderer2,
   RendererStyleFlags2
 } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import ResizeObserver from 'resize-observer-polyfill';
 
@@ -28,7 +28,7 @@ export class BoardLayoutComponent implements OnInit, AfterContentInit, OnDestroy
   @Input()
   set tracks(val: number) {
     this._tracks = val;
-    this.trackBreaks$.next([...new Array(val).keys()]);
+    this._trackBreaks$.next([...new Array(val).keys()]);
     this._renderer.setStyle(
       this._element.nativeElement,
       '--board-layout-track-count',
@@ -48,17 +48,21 @@ export class BoardLayoutComponent implements OnInit, AfterContentInit, OnDestroy
     return this._cards;
   }
 
+  get trackBreaks$(): Observable<Array<number>> {
+    return this._trackBreaks$;
+  }
+
   private _tracks: number;
   private _cards: QueryList<BoardCardDirective>;
   private _resizeObserver: ResizeObserver;
   private readonly _unsub$: Subject<void>;
-  readonly trackBreaks$: Subject<Array<number>>;
+  private readonly _trackBreaks$: Subject<Array<number>>;
   constructor(
     private readonly _element: ElementRef<HTMLElement>,
     private readonly _renderer: Renderer2,
     private readonly _cardSorting: CardSortingStrategy
   ) {
-    this.trackBreaks$ = new Subject();
+    this._trackBreaks$ = new Subject();
     this._unsub$ = new Subject();
   }
 
@@ -78,7 +82,9 @@ export class BoardLayoutComponent implements OnInit, AfterContentInit, OnDestroy
     this._unsub$.next();
     this._unsub$.complete();
 
-    this._resizeObserver.unobserve(this._element.nativeElement);
+    if (this._resizeObserver) {
+      this._resizeObserver.unobserve(this._element.nativeElement);
+    }
   }
 
   private onResized(): void {
@@ -93,7 +99,7 @@ export class BoardLayoutComponent implements OnInit, AfterContentInit, OnDestroy
     // sort content cards into their tracks
     const tracks = this._cardSorting.sort(this.cards.toArray(), this.tracks);
 
-    // set cards order property per their track index and adjust track breaks order as well
+    // set cards order property per their track index and adjust track breaks as well
     let order = 0;
     const trackBreaks = new Array(this.tracks);
     for (let idx = 0; idx < tracks.length; idx++) {
@@ -105,7 +111,7 @@ export class BoardLayoutComponent implements OnInit, AfterContentInit, OnDestroy
       trackBreaks[idx] = ++order;
     }
 
-    this.trackBreaks$.next(trackBreaks);
+    this._trackBreaks$.next(trackBreaks);
 
     // update container size to match that of the largest track
     const newSize = tracks
@@ -120,46 +126,3 @@ export class BoardLayoutComponent implements OnInit, AfterContentInit, OnDestroy
     );
   }
 }
-
-/**
- 
-import { Directive, Output, EventEmitter, OnInit, OnDestroy, ElementRef } from '@angular/core';
-import ResizeObserver from 'resize-observer-polyfill';
-
-@Directive({
-  exportAs: 'resizeObserver',
-  selector: '[resizeObserver]'
-})
-export class ResizeObserverDirective implements OnInit, OnDestroy {
-  @Output('resizeObserver') resize = new EventEmitter<Partial<DOMRectReadOnly>>();
-
-  private _observer: ResizeObserver;
-  private _timer: any;
-
-  constructor(private readonly _el: ElementRef<HTMLElement>) {}
-
-  ngOnInit() {
-    this._observer = new ResizeObserver(entries => {
-      for (const entry of entries) {
-        this.onResize(entry.contentRect);
-      }
-    });
-
-    this._observer.observe(this._el.nativeElement);
-  }
-
-  ngOnDestroy() {
-    this._observer.unobserve(this._el.nativeElement);
-  }
-
-  onResize(e: Partial<DOMRectReadOnly>) {
-    if (this._timer) {
-      clearTimeout(this._timer);
-      this._timer = undefined;
-    }
-
-    this._timer = setTimeout(() => this.resize.emit(e), 100);
-  }
-}
-
- */
