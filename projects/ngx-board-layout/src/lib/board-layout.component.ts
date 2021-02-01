@@ -16,6 +16,7 @@ import { takeUntil } from 'rxjs/operators';
 import ResizeObserver from 'resize-observer-polyfill';
 
 import { BoardCardDirective } from './board-card.directive';
+import { CardSortingStrategy } from './card-sorting-strategy.service';
 
 @Component({
   selector: 'ngx-board-layout',
@@ -53,7 +54,11 @@ export class BoardLayoutComponent implements OnInit, AfterContentInit, OnDestroy
   private _resizeObserver: ResizeObserver;
   private readonly _unsub$: Subject<void>;
   columnDefs: any[] = [];
-  constructor(private readonly _element: ElementRef<HTMLElement>, private readonly _renderer: Renderer2) {
+  constructor(
+    private readonly _element: ElementRef<HTMLElement>,
+    private readonly _renderer: Renderer2,
+    private readonly _cardSorting: CardSortingStrategy
+  ) {
     this._unsub$ = new Subject();
   }
 
@@ -85,23 +90,22 @@ export class BoardLayoutComponent implements OnInit, AfterContentInit, OnDestroy
   private reorder(): void {
     if (!this.cards) return;
 
-    const trackHeight = [...this.columnDefs];
-    let maxTrackHeight = 0;
-    const cards = this.cards.toArray();
-    for (let i = 0; i < cards.length; i++) {
-      const card = cards[i];
-      let columnIdx = i % this.tracks;
-      card.order = 2 * columnIdx;
+    // sort content cards into their tracks
+    const tracks = this._cardSorting.sort(this.cards.toArray(), this.tracks);
 
-      trackHeight[columnIdx] += card.height;
-      maxTrackHeight = Math.max(maxTrackHeight, trackHeight[columnIdx]);
-    }
+    // set cards order property per their track index.
+    // cards order value will be 2n, while track break elements is 2n+1
+    tracks.forEach((cards, idx) => cards.forEach(card => (card.order = 2 * idx)));
 
-    // set container height so that flex break works as expected
+    // update container size to match that of the largest track
+    const newSize = tracks
+      .map(cards => cards.reduce((size, card) => size + card.height, 0))
+      .reduce((highest, size) => Math.max(highest, size), 0);
+
     this._renderer.setStyle(
       this._element.nativeElement,
       '--board-layout-container-height',
-      `${maxTrackHeight}px`,
+      `${newSize}px`,
       RendererStyleFlags2.DashCase
     );
   }
