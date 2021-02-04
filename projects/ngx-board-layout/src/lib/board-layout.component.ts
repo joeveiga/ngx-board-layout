@@ -5,10 +5,8 @@ import {
   ContentChildren,
   QueryList,
   OnDestroy,
-  AfterContentInit,
   Input,
   ElementRef,
-  OnInit,
   Renderer2,
   RendererStyleFlags2,
 } from '@angular/core';
@@ -33,8 +31,7 @@ interface TrackConfig extends BoardLayoutTrackConfig {
   styleUrls: ['./board-layout.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BoardLayoutComponent
-  implements OnInit, AfterContentInit, OnDestroy {
+export class BoardLayoutComponent implements OnDestroy {
   @Input()
   set tracks(tracks: number | BoardLayoutTrackConfig[]) {
     let tracksConfig: TrackConfig[] = [{ _order: 0 }];
@@ -50,8 +47,9 @@ export class BoardLayoutComponent
   @ContentChildren(BoardCardDirective) set cards(
     value: QueryList<BoardCardDirective>
   ) {
-    this._cards = value;
-    this._cards.changes.subscribe((cards) => this._cards$.next(cards));
+    value.changes
+      .pipe(takeUntil(this._unsub$))
+      .subscribe((cards) => this._cards$.next(cards));
   }
 
   readonly tracks$: Observable<TrackConfig[]>;
@@ -59,8 +57,6 @@ export class BoardLayoutComponent
   private readonly _tracks$: BehaviorSubject<TrackConfig[]>;
   private readonly _cards$: BehaviorSubject<BoardCardDirective[]>;
   private readonly _unsub$: Subject<void>;
-
-  private _cards: QueryList<BoardCardDirective>;
 
   constructor(
     private readonly _element: ElementRef<HTMLElement>,
@@ -139,10 +135,6 @@ export class BoardLayoutComponent
       })
     );
   }
-
-  ngOnInit(): void {}
-
-  ngAfterContentInit(): void {}
 
   ngOnDestroy(): void {
     this._unsub$.next();
