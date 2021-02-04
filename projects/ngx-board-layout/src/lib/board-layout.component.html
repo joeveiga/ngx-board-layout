@@ -1,9 +1,6 @@
-{{ _tracks | json }}
 <div class="ngx-board-layout-container">
   <ng-content></ng-content>
-  <ng-container
-    *ngFor="let track of visibleTracks$ | async as tracks; index as ci"
-  >
+  <ng-container *ngFor="let track of tracks$ | async as tracks; index as ci">
     <span
       class="ngx-board-layout-flex-break"
       *ngIf="ci < tracks.length - 1"

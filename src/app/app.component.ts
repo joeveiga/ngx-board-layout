@@ -26,7 +26,7 @@ export class AppComponent {
   }
 
   addTrack(): void {
-    this.tracks = [...this.tracks, { media: '(min-width: 500px)' }];
+    this.tracks = [...this.tracks, { media: '(min-width: 700px)' }];
   }
 
   removeTrack(): void {
