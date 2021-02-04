@@ -1,6 +1,13 @@
+{{ _tracks | json }}
 <div class="ngx-board-layout-container">
   <ng-content></ng-content>
-  <ng-container *ngFor="let breakOrder of trackBreaks$ | async; index as ci">
-    <span class="ngx-board-layout-flex-break" *ngIf="ci < tracks - 1" [style.order]="breakOrder"></span>
+  <ng-container
+    *ngFor="let track of visibleTracks$ | async as tracks; index as ci"
+  >
+    <span
+      class="ngx-board-layout-flex-break"
+      *ngIf="ci < tracks.length - 1"
+      [style.order]="track._order"
+    ></span>
   </ng-container>
 </div>
