@@ -44,12 +44,10 @@ export class BoardLayoutComponent implements OnDestroy {
     this._tracks$.next(tracksConfig);
   }
 
-  @ContentChildren(BoardCardDirective) set cards(
-    value: QueryList<BoardCardDirective>
-  ) {
-    value.changes
-      .pipe(takeUntil(this._unsub$))
-      .subscribe((cards) => this._cards$.next(cards));
+  @ContentChildren(BoardCardDirective)
+  set cards(value: QueryList<BoardCardDirective>) {
+    const cards = value.toArray();
+    this._cards$.next(cards);
   }
 
   readonly tracks$: Observable<TrackConfig[]>;
@@ -102,6 +100,8 @@ export class BoardLayoutComponent implements OnDestroy {
     this.tracks$ = combineLatest([
       visible$,
       this._cards$,
+      // TODO: find better way to do this to filter reize event triggered by
+      // new container height calculation.
       this._resize.observe(this._element.nativeElement),
     ]).pipe(
       map(([tracks, cards]) => {

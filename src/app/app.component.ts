@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { BoardLayoutTrackConfig } from 'ngx-board-layout/board-layout.component';
 
 // @Injectable()
@@ -16,13 +16,25 @@ import { BoardLayoutTrackConfig } from 'ngx-board-layout/board-layout.component'
   styleUrls: ['./app.component.scss'],
   // providers: [{ provide: CardSortingStrategy, useClass: LargestFirstSortingStrategy }]
 })
-export class AppComponent {
+export class AppComponent implements OnDestroy {
   replay = [];
   cards = [];
   tracks: BoardLayoutTrackConfig[] = [];
+  interval: any;
 
   constructor() {
-    // for (let i = 0; i < 100; i++) {}
+    this.interval = setInterval(() => {
+      // this.cards = this.cards.map((card) => ({
+      //   ...card,
+      //   content: [...new Array(Math.floor(Math.random() * 200 + 50)).keys()]
+      //     .map(() => this.cards.length)
+      //     .join(', '),
+      // }));
+    }, 3000);
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.interval);
   }
 
   addTrack(): void {
