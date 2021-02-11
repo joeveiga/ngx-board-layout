@@ -1,5 +1,5 @@
 import { Component, OnDestroy } from '@angular/core';
-import { BoardLayoutTrackConfig } from 'ngx-board-layout/board-layout.component';
+import { TrackConfig } from 'ngx-board-layout/board-layout.component';
 
 // @Injectable()
 // export class LargestFirstSortingStrategy extends CardSortingStrategy {
@@ -19,7 +19,7 @@ import { BoardLayoutTrackConfig } from 'ngx-board-layout/board-layout.component'
 export class AppComponent implements OnDestroy {
   replay = [];
   cards = [];
-  tracks: BoardLayoutTrackConfig[] = [];
+  tracks: TrackConfig[] = [];
   interval: any;
 
   constructor() {
