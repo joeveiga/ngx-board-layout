@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BoardCardDirective } from './board-card.directive';
+import { BoardCardDirective } from '../board-card.directive';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CardSortingStrategy {
   sort(cards: BoardCardDirective[], tracks: number): BoardCardDirective[][] {

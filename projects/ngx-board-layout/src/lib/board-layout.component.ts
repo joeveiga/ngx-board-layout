@@ -14,8 +14,8 @@ import { Observable, Subject, combineLatest, BehaviorSubject } from 'rxjs';
 import { map, switchMap, takeUntil } from 'rxjs/operators';
 
 import { BoardCardDirective } from './board-card.directive';
-import { CardSortingStrategy } from './card-sorting-strategy.service';
-import { ResizeObserverService } from './resize-observer.service';
+import { CardSortingStrategy } from './services/card-sorting-strategy.service';
+import { ResizeObserverService } from './services/resize-observer.service';
 
 export interface BoardLayoutTrackConfig {
   media?: string;
