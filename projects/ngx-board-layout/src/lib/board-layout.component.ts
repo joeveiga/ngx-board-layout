@@ -16,7 +16,7 @@ import { map, switchMap, takeUntil } from 'rxjs/operators';
 import { BoardCardDirective } from './board-card.directive';
 import { CardSortingStrategy } from './services/card-sorting-strategy.service';
 import { ResizeObserverService } from './services/resize-observer.service';
-import { TrackCollection } from './tracks';
+import { TrackCollection } from './domain/track-collection';
 
 export interface TrackConfig {
   media?: string;
