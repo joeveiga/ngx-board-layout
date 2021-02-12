@@ -6,8 +6,13 @@ export class TrackCollection implements Iterable<Track> {
 
   constructor(sortedCards: Card[][]) {
     let order = 0;
-    this._tracks = sortedCards.map((cards) => {
-      const result = new Track(cards, order);
+    this._tracks = sortedCards.map((cards, idx) => {
+      const result = new Track({
+        cards,
+        order,
+        first: idx === 0,
+        last: idx === sortedCards.length - 1,
+      });
       order = result.order + 1;
 
       return result;
