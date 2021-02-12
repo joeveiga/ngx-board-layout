@@ -1,5 +1,5 @@
 :host {
-  --board-layout-track-count: 4;
+  --board-layout-track-count: 1;
   --board-layout-container-height: 0;
 
   display: block;
@@ -22,7 +22,7 @@
     .ngx-board-layout-flex-break {
       flex-basis: 100%;
       width: 0;
-      content: '';
+      content: "";
     }
   }
 }

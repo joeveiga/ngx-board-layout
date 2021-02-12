@@ -4,14 +4,13 @@ import {
   ChangeDetectionStrategy,
   ContentChildren,
   QueryList,
-  OnDestroy,
   Input,
   ElementRef,
   Renderer2,
   RendererStyleFlags2,
 } from '@angular/core';
-import { Observable, Subject, combineLatest, BehaviorSubject } from 'rxjs';
-import { map, switchMap, takeUntil } from 'rxjs/operators';
+import { Observable, Subject, combineLatest } from 'rxjs';
+import { map, switchMap, tap } from 'rxjs/operators';
 
 import { BoardCardDirective } from './board-card.directive';
 import { CardSortingStrategy } from './services/card-sorting-strategy.service';
@@ -28,7 +27,7 @@ export interface TrackConfig {
   styleUrls: ['./board-layout.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BoardLayoutComponent implements OnDestroy {
+export class BoardLayoutComponent {
   @Input()
   set tracks(tracks: number | TrackConfig[]) {
     let tracksConfig: TrackConfig[] = [{}];
@@ -49,9 +48,8 @@ export class BoardLayoutComponent implements OnDestroy {
 
   readonly tracks$: Observable<TrackCollection>;
 
-  private readonly _tracks$: BehaviorSubject<TrackConfig[]>;
-  private readonly _cards$: BehaviorSubject<BoardCardDirective[]>;
-  private readonly _unsub$: Subject<void>;
+  private readonly _tracks$: Subject<TrackConfig[]>;
+  private readonly _cards$: Subject<BoardCardDirective[]>;
 
   constructor(
     private readonly _element: ElementRef<HTMLElement>,
@@ -60,11 +58,10 @@ export class BoardLayoutComponent implements OnDestroy {
     private readonly _resize: ResizeObserverService,
     private readonly _media: BreakpointObserver
   ) {
-    this._tracks$ = new BehaviorSubject([]);
-    this._cards$ = new BehaviorSubject([]);
-    this._unsub$ = new Subject();
+    this._tracks$ = new Subject();
+    this._cards$ = new Subject();
 
-    const visibleTracks$ = combineLatest([
+    const visibleTracksCount$ = combineLatest([
       this._tracks$,
       this._tracks$.pipe(
         switchMap((tracks) => {
@@ -80,45 +77,38 @@ export class BoardLayoutComponent implements OnDestroy {
           (t) => !t.media || media.breakpoints[t.media]
         );
 
-        // TODO: find better way to guarantee we always have at least one track
-        return mediaFilter.length ? mediaFilter : [{}];
-      })
+        // we always want at least one track!
+        return mediaFilter.length || 1;
+      }),
+      tap((trackCount) => (this.trackCount = trackCount))
     );
 
-    visibleTracks$.pipe(takeUntil(this._unsub$)).subscribe((tracks) => {
-      this._renderer.setStyle(
-        this._element.nativeElement,
-        '--board-layout-track-count',
-        tracks.length,
-        RendererStyleFlags2.DashCase
-      );
-    });
-
     this.tracks$ = combineLatest([
-      visibleTracks$,
+      visibleTracksCount$,
       this._cards$,
       // TODO: find better way to do this to filter reize event triggered by
       // new container height calculation.
       this._resize.observe(this._element.nativeElement),
     ]).pipe(
-      map(([tracks, cards]) => {
-        const sortedTracks = this._cardSorting.sort(cards, tracks.length);
-
-        // update container size to match that of the largest track
-        this._renderer.setStyle(
-          this._element.nativeElement,
-          '--board-layout-container-height',
-          `${sortedTracks.height}px`,
-          RendererStyleFlags2.DashCase
-        );
-
-        return sortedTracks;
-      })
+      map(([tracks, cards]) => this._cardSorting.sort(cards, tracks)),
+      tap((tracks) => (this.height = tracks.height))
     );
   }
 
-  ngOnDestroy(): void {
-    this._unsub$.next();
-    this._unsub$.complete();
+  private set height(val: number) {
+    this.setCssVar('--board-layout-container-height', `${val}px`);
+  }
+
+  private set trackCount(val: number) {
+    this.setCssVar('--board-layout-track-count', val);
+  }
+
+  private setCssVar(varName: string, value: string | number): void {
+    this._renderer.setStyle(
+      this._element.nativeElement,
+      varName,
+      value,
+      RendererStyleFlags2.DashCase
+    );
   }
 }
