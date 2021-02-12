@@ -58,6 +58,16 @@ export class BoardLayoutComponent {
     this._cards$.next(cards);
   }
 
+  @Input()
+  set gutter(val: number | string) {
+    if (typeof val === 'number') {
+      // assumed px
+      val = `${val}px`;
+    }
+
+    this.setCssVar('--board-layout-gutter', val);
+  }
+
   readonly tracks$: Observable<TrackCollection>;
 
   private readonly _tracks$: BehaviorSubject<TrackConfig[]>;

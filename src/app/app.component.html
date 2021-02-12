@@ -1,4 +1,8 @@
-<ngx-board-layout [tracks]="tracksObj" [style.background-color]="'lightgray'">
+<ngx-board-layout
+  [tracks]="tracksObj"
+  gutter="20px"
+  [style.background-color]="'lightgray'"
+>
   <div
     ngxBoardCard
     *ngFor="let card of cards; index as i"

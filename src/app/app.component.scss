@@ -1,6 +1,10 @@
 ngx-board-layout {
   width: 80%;
   margin: auto;
+
+  .ngx-board-layout--last-track {
+    background-color: red !important;
+  }
 }
 :host {
   display: block;

@@ -1,6 +1,7 @@
 :host {
   --board-layout-track-count: 1;
-  --board-layout-container-height: 0;
+  --board-layout-container-height: 0px;
+  --board-layout-gutter: 0px;
 
   display: block;
   position: relative;
@@ -15,7 +16,19 @@
 
     ::ng-deep {
       > [ngxboardcard] {
-        width: calc(100% / var(--board-layout-track-count));
+        width: calc(
+          (
+              100% -
+                (
+                  var(--board-layout-gutter) *
+                    (var(--board-layout-track-count) - 1)
+                )
+            ) / var(--board-layout-track-count)
+        );
+
+        &:not(.ngx-board-layout--last-track):not(.ngx-board-layout--last-track.ngx-board-layout--first-track) {
+          margin-right: var(--board-layout-gutter);
+        }
       }
     }
 
