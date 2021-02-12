@@ -9,13 +9,16 @@ import {
   Renderer2,
   RendererStyleFlags2,
 } from '@angular/core';
-import { Observable, Subject, combineLatest } from 'rxjs';
+import { Observable, combineLatest, BehaviorSubject } from 'rxjs';
 import { distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
 
 import { BoardCardDirective } from './board-card.directive';
 import { CardSortingStrategy } from './services/card-sorting-strategy.service';
 import { ResizeObserverService } from './services/resize-observer.service';
 import { TrackCollection } from './domain/track-collection';
+
+export type TrackConfigObj = { [media: string]: number };
+export type TrackConfigType = number | TrackConfig[] | TrackConfigObj;
 
 export interface TrackConfig {
   media?: string;
@@ -29,10 +32,19 @@ export interface TrackConfig {
 })
 export class BoardLayoutComponent {
   @Input()
-  set tracks(tracks: number | TrackConfig[]) {
+  set tracks(tracks: TrackConfigType) {
     let tracksConfig: TrackConfig[] = [{}];
+    const nToArray = (n: number) => [...new Array(n).keys()];
+    const flatten = (arr: unknown[][]) => [].concat.apply([], arr);
+
     if (typeof tracks === 'number' && tracks > 0) {
-      tracksConfig = [...new Array(tracks).keys()].map(() => ({}));
+      tracksConfig = nToArray(tracks).map(() => ({}));
+    } else if (tracks !== null && typeof tracks === 'object') {
+      tracksConfig = flatten(
+        Object.keys(tracks).map((media) =>
+          nToArray(tracks[media]).map(() => ({ media }))
+        )
+      );
     } else if (Array.isArray(tracks) && tracks.length > 0) {
       tracksConfig = tracks;
     }
@@ -48,8 +60,8 @@ export class BoardLayoutComponent {
 
   readonly tracks$: Observable<TrackCollection>;
 
-  private readonly _tracks$: Subject<TrackConfig[]>;
-  private readonly _cards$: Subject<BoardCardDirective[]>;
+  private readonly _tracks$: BehaviorSubject<TrackConfig[]>;
+  private readonly _cards$: BehaviorSubject<BoardCardDirective[]>;
 
   constructor(
     private readonly _element: ElementRef<HTMLElement>,
@@ -58,15 +70,17 @@ export class BoardLayoutComponent {
     private readonly _resize: ResizeObserverService,
     private readonly _media: BreakpointObserver
   ) {
-    this._tracks$ = new Subject();
-    this._cards$ = new Subject();
+    this._tracks$ = new BehaviorSubject([{}]);
+    this._cards$ = new BehaviorSubject([]);
 
     const visibleTracksCount$ = this._tracks$.pipe(
       switchMap((tracks) => {
         const mediaQs = tracks.filter((t) => t.media).map((t) => t.media);
         const mediaQObs = mediaQs.length
           ? this._media.observe(mediaQs)
-          : new Observable<BreakpointState>(() => {});
+          : new Observable<Partial<BreakpointState>>((subs) =>
+              subs.next({ breakpoints: {} })
+            );
 
         return mediaQObs.pipe(
           map((media) => {

@@ -1,5 +1,8 @@
 import { Component, OnDestroy } from '@angular/core';
-import { TrackConfig } from 'ngx-board-layout/board-layout.component';
+import {
+  TrackConfig,
+  TrackConfigObj,
+} from 'ngx-board-layout/board-layout.component';
 
 // @Injectable()
 // export class LargestFirstSortingStrategy extends CardSortingStrategy {
@@ -20,6 +23,7 @@ export class AppComponent implements OnDestroy {
   replay = [];
   cards = [];
   tracks: TrackConfig[] = [];
+  tracksObj: TrackConfigObj = {};
   interval: any;
 
   constructor() {
@@ -39,11 +43,13 @@ export class AppComponent implements OnDestroy {
 
   addTrack(): void {
     this.tracks = [...this.tracks, { media: '(min-width: 700px)' }];
+    this.tracksObj = { '(min-width: 700px)': this.tracks.length };
   }
 
   removeTrack(): void {
     if (this.tracks.length > 0)
       this.tracks = this.tracks.slice(0, this.tracks.length - 1);
+    this.tracksObj = { '(min-width: 700px)': this.tracks.length };
   }
 
   addCard(): void {

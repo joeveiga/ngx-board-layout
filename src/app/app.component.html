@@ -1,5 +1,9 @@
-<ngx-board-layout [tracks]="tracks" [style.background-color]="'lightgray'">
-  <div ngxBoardCard *ngFor="let card of cards; index as i" [style.background-color]="card.color">
+<ngx-board-layout [tracks]="tracksObj" [style.background-color]="'lightgray'">
+  <div
+    ngxBoardCard
+    *ngFor="let card of cards; index as i"
+    [style.background-color]="card.color"
+  >
     <div>Card with content</div>
     {{ card.content }}
   </div>
