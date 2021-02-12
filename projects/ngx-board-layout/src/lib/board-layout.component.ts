@@ -10,7 +10,7 @@ import {
   RendererStyleFlags2,
 } from '@angular/core';
 import { Observable, Subject, combineLatest } from 'rxjs';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { distinctUntilChanged, map, switchMap, tap } from 'rxjs/operators';
 
 import { BoardCardDirective } from './board-card.directive';
 import { CardSortingStrategy } from './services/card-sorting-strategy.service';
@@ -61,34 +61,37 @@ export class BoardLayoutComponent {
     this._tracks$ = new Subject();
     this._cards$ = new Subject();
 
-    const visibleTracksCount$ = combineLatest([
-      this._tracks$,
-      this._tracks$.pipe(
-        switchMap((tracks) => {
-          const mediaQs = tracks.filter((t) => t.media).map((t) => t.media);
-          return mediaQs.length
-            ? this._media.observe(mediaQs)
-            : new Observable<BreakpointState>(() => {});
-        })
-      ),
-    ]).pipe(
-      map(([tracks, media]) => {
-        const mediaFilter = tracks.filter(
-          (t) => !t.media || media.breakpoints[t.media]
-        );
+    const visibleTracksCount$ = this._tracks$.pipe(
+      switchMap((tracks) => {
+        const mediaQs = tracks.filter((t) => t.media).map((t) => t.media);
+        const mediaQObs = mediaQs.length
+          ? this._media.observe(mediaQs)
+          : new Observable<BreakpointState>(() => {});
 
-        // we always want at least one track!
-        return mediaFilter.length || 1;
+        return mediaQObs.pipe(
+          map((media) => {
+            const mediaFilter = tracks.filter(
+              (t) => !t.media || media.breakpoints[t.media]
+            );
+
+            // we always want at least one track!
+            return mediaFilter.length || 1;
+          })
+        );
       }),
+      distinctUntilChanged(),
       tap((trackCount) => (this.trackCount = trackCount))
+    );
+
+    const resize$ = this._resize.observe(this._element.nativeElement).pipe(
+      map((event) => event.width),
+      distinctUntilChanged()
     );
 
     this.tracks$ = combineLatest([
       visibleTracksCount$,
       this._cards$,
-      // TODO: find better way to do this to filter reize event triggered by
-      // new container height calculation.
-      this._resize.observe(this._element.nativeElement),
+      resize$,
     ]).pipe(
       map(([tracks, cards]) => this._cardSorting.sort(cards, tracks)),
       tap((tracks) => (this.height = tracks.height))
