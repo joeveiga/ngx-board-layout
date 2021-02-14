@@ -68,10 +68,16 @@ export class BoardLayoutComponent {
     this.setCssVar('--board-layout-gutter', val);
   }
 
+  @Input()
+  set spacing(val: number) {
+    this._spacing$.next(val);
+  }
+
   readonly tracks$: Observable<TrackCollection>;
 
   private readonly _tracks$: BehaviorSubject<TrackConfig[]>;
   private readonly _cards$: BehaviorSubject<BoardCardDirective[]>;
+  private readonly _spacing$: BehaviorSubject<number>;
 
   constructor(
     private readonly _element: ElementRef<HTMLElement>,
@@ -82,6 +88,7 @@ export class BoardLayoutComponent {
   ) {
     this._tracks$ = new BehaviorSubject([{}]);
     this._cards$ = new BehaviorSubject([]);
+    this._spacing$ = new BehaviorSubject(0);
 
     const visibleTracksCount$ = this._tracks$.pipe(
       switchMap((tracks) => {
@@ -115,9 +122,17 @@ export class BoardLayoutComponent {
     this.tracks$ = combineLatest([
       visibleTracksCount$,
       this._cards$,
+      this._spacing$.pipe(
+        tap((spacing) =>
+          this.setCssVar('--board-layout-spacing', `${spacing}px`)
+        )
+      ),
       resize$,
     ]).pipe(
-      map(([tracks, cards]) => this._cardSorting.sort(cards, tracks)),
+      map(
+        ([tracks, cards, spacing]) =>
+          new TrackCollection(this._cardSorting.sort(cards, tracks), spacing)
+      ),
       tap((tracks) => (this.height = tracks.height))
     );
   }

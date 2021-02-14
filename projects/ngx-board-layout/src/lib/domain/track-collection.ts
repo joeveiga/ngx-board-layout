@@ -4,7 +4,7 @@ import { Track } from './track';
 export class TrackCollection implements Iterable<Track> {
   private _tracks: Track[];
 
-  constructor(sortedCards: Card[][]) {
+  constructor(sortedCards: Card[][], spacing: number = 0) {
     let order = 0;
     this._tracks = sortedCards.map((cards, idx) => {
       const result = new Track({
@@ -12,6 +12,7 @@ export class TrackCollection implements Iterable<Track> {
         order,
         first: idx === 0,
         last: idx === sortedCards.length - 1,
+        spacing,
       });
       order = result.order + 1;
 

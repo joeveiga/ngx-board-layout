@@ -3,6 +3,7 @@ import { Card } from './card';
 export interface TrackOptions {
   cards: Card[];
   order: number;
+  spacing: number;
   first?: boolean;
   last?: boolean;
 }
@@ -10,10 +11,12 @@ export interface TrackOptions {
 export class Track {
   private _cards: Card[];
   private _order: number;
+  private _spacing: number;
 
-  constructor({ cards, order, first, last }: TrackOptions) {
+  constructor({ cards, order, spacing, first, last }: TrackOptions) {
     this._cards = cards;
     this._order = order;
+    this._spacing = spacing;
     this._cards.forEach((card, idx) => {
       card.order = this._order + idx;
       card.firstTrack = first;
@@ -28,6 +31,9 @@ export class Track {
   }
 
   get height(): number {
-    return this._cards.reduce((size, card) => size + card.height, 0);
+    const height = this._cards.reduce((size, card) => size + card.height, 0);
+    const spacing = this._spacing * (this._cards.length - 1);
+
+    return height + spacing;
   }
 }
