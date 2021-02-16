@@ -19,8 +19,8 @@ export class Track {
     this._spacing = spacing;
     this._cards.forEach((card, idx) => {
       card.order = this._order + idx;
-      card.firstTrack = first;
-      card.lastTrack = last;
+      card.firstTrack = !!first;
+      card.lastTrack = !!last;
       card.firstCardInTrack = idx === 0;
       card.lastCardInTrack = idx === cards.length - 1;
     });
@@ -32,7 +32,7 @@ export class Track {
 
   get height(): number {
     const height = this._cards.reduce((size, card) => size + card.height, 0);
-    const spacing = this._spacing * (this._cards.length - 1);
+    const spacing = this._spacing * Math.max(0, this._cards.length - 1);
 
     return height + spacing;
   }
